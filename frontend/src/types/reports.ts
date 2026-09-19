@@ -1,3 +1,86 @@
-export type Severity="low"|"medium"|"high"|"critical";
-export interface Analysis{category:string;issue_type:string;confidence:number;severity:Severity;detected_objects:string[];accessibility_impact:string;explanation:string;complaint:string;priority_score:number;demo_mode?:boolean}
-export interface Report{id:number;civic_issue_id:string;title:string;description:string;status:string;category:string;severity:Severity;lat:number;lon:number;created_at:string;analysis?:Analysis}
+import type { User } from "./auth";
+
+export type ReportStatus =
+  | "REPORTED"
+  | "AI VERIFIED"
+  | "ASSIGNED"
+  | "IN PROGRESS"
+  | "RESOLVED"
+  | "VERIFICATION"
+  | "CLOSED";
+
+export type ReportCategory =
+  | "Accessibility"
+  | "Road"
+  | "Cleanliness"
+  | "Public Space"
+  | "Pedestrian Safety";
+
+export type Severity =
+  | "Critical"
+  | "High"
+  | "Medium"
+  | "Low";
+
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  address?: string;
+  city?: string;
+  state?: string;
+}
+
+export interface Detection {
+  object: string;
+  confidence: number;
+  boundingBox?: number[];
+}
+
+export interface AccessibilityImpact {
+  affected: boolean;
+  type?: string;
+  description?: string;
+}
+
+export interface AIAnalysis {
+  category: ReportCategory;
+  issueType: string;
+  confidence: number;
+  severity: Severity;
+  detectedObjects: Detection[];
+  accessibilityImpact: AccessibilityImpact;
+  summary?: string;
+}
+
+export interface Report {
+  id: string;
+  civicIssueId: string;
+  title: string;
+  description: string;
+  category: ReportCategory;
+  issueType: string;
+  severity: Severity;
+  status: ReportStatus;
+
+  imageUrl?: string;
+
+  location: LocationData;
+
+  aiAnalysis?: AIAnalysis;
+
+  reporter?: User;
+
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateReportRequest {
+  image: File;
+  location: LocationData;
+  description?: string;
+}
+
+export interface SubmitReportRequest {
+  reportId: string;
+  complaintText: string;
+}
