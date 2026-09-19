@@ -1,0 +1,1 @@
+export default function BeforeAfter({before,after}:any){return <div className="ap-grid ap-grid-2">{[["Before",before],["After",after]].map(([t,s]:any)=><div className="ap-card" key={t}><b>{t}</b>{s?<img src={s} alt={`${t} resolution evidence`} style={{width:"100%",marginTop:10,borderRadius:11}}/>:<p className="ap-muted">No image uploaded.</p>}</div>)}</div>}

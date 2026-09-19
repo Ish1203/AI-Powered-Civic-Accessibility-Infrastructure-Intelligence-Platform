@@ -1,0 +1,1 @@
+import {useAuthContext} from "../context/AuthContext";export default useAuthContext;

@@ -1,0 +1,1 @@
+export default function useNotifications(){return {data:[],isLoading:false}}

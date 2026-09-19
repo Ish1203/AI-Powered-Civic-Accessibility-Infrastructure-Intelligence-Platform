@@ -1,0 +1,1 @@
+import {useState} from "react";export default function useLocation(){const [location,setLocation]=useState<{lat:number;lon:number}|null>(null);const request=()=>navigator.geolocation?.getCurrentPosition(p=>setLocation({lat:p.coords.latitude,lon:p.coords.longitude}));return {location,request}}

@@ -1,0 +1,1 @@
+import {useQuery} from "@tanstack/react-query";import {listIssues} from "../api/issues.api";export default function useIssues(){return useQuery({queryKey:["issues"],queryFn:listIssues})}

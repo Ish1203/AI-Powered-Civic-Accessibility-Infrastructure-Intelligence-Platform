@@ -1,0 +1,1 @@
+import {useQuery} from "@tanstack/react-query";import {listReports} from "../api/reports.api";export default function useReports(){return useQuery({queryKey:["reports"],queryFn:listReports})}

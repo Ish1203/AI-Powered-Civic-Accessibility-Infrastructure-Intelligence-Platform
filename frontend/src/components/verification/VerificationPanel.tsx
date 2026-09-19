@@ -1,0 +1,1 @@
+import {ShieldCheck} from "lucide-react";export default function VerificationPanel(){return <div className="ap-card"><div style={{display:"flex",gap:10}}><ShieldCheck/><div><b>Resolution verification</b><p className="ap-muted">AI can compare before/after evidence, but uncertainty should remain visible. Citizen confirmation is part of the closure workflow.</p></div></div></div>}

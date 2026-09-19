@@ -1,0 +1,1 @@
+export default function ResolutionEvidence(){return <label className="ap-upload"><b>Upload resolution evidence</b><p className="ap-muted">Add a clear after-image for verification.</p><input type="file" accept="image/*"/></label>}

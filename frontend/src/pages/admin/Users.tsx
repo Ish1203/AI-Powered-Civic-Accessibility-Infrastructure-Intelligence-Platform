@@ -1,0 +1,1 @@
+export default function Users(){return <div className="ap-container ap-section"><div className="ap-eyebrow">ADMIN</div><h1>Users</h1><div className="ap-card"><b>Configuration workspace</b><p className="ap-muted">Connect this page to the corresponding FastAPI administrative endpoints with role authorization.</p></div></div>}
