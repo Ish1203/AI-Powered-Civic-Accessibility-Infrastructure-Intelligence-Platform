@@ -1,0 +1,1 @@
+import api from "./client"; export const mapIssues=async()=> (await api.get("/map/issues")).data;

@@ -1,0 +1,13 @@
+import {Routes,Route} from "react-router-dom";import AppLayout from "./components/layout/AppLayout";import {AuthProvider} from "./context/AuthContext";
+import Landing from "./pages/public/Landing";import ExploreMap from "./pages/public/ExploreMap";
+import Login from "./pages/auth/Login";import Register from "./pages/auth/Register";import ForgotPassword from "./pages/auth/ForgotPassword";
+import CitizenDashboard from "./pages/citizen/Dashboard";import ReportIssue from "./pages/citizen/ReportIssue";import MyReports from "./pages/citizen/MyReports";import ReportDetail from "./pages/citizen/ReportDetail";import Notifications from "./pages/citizen/Notifications";import Profile from "./pages/citizen/Profile";
+import AuthorityDashboard from "./pages/authority/Dashboard";import AuthorityIssues from "./pages/authority/Issues";import AuthorityIssueDetail from "./pages/authority/IssueDetail";import Assignments from "./pages/authority/Assignments";import Resolution from "./pages/authority/Resolution";import AuthorityAnalytics from "./pages/authority/Analytics";
+import AdminDashboard from "./pages/admin/Dashboard";import Users from "./pages/admin/Users";import Departments from "./pages/admin/Departments";import Categories from "./pages/admin/Categories";import AuditLogs from "./pages/admin/AuditLogs";
+export default function App(){return <AuthProvider><AppLayout><Routes>
+<Route path="/" element={<Landing/>}/><Route path="/map" element={<ExploreMap/>}/>
+<Route path="/login" element={<Login/>}/><Route path="/register" element={<Register/>}/><Route path="/forgot-password" element={<ForgotPassword/>}/>
+<Route path="/dashboard" element={<CitizenDashboard/>}/><Route path="/report" element={<ReportIssue/>}/><Route path="/reports" element={<MyReports/>}/><Route path="/reports/:id" element={<ReportDetail/>}/><Route path="/notifications" element={<Notifications/>}/><Route path="/profile" element={<Profile/>}/>
+<Route path="/authority" element={<AuthorityDashboard/>}/><Route path="/authority/issues" element={<AuthorityIssues/>}/><Route path="/authority/issues/:id" element={<AuthorityIssueDetail/>}/><Route path="/authority/assignments" element={<Assignments/>}/><Route path="/authority/resolution" element={<Resolution/>}/><Route path="/authority/analytics" element={<AuthorityAnalytics/>}/>
+<Route path="/admin" element={<AdminDashboard/>}/><Route path="/admin/users" element={<Users/>}/><Route path="/admin/departments" element={<Departments/>}/><Route path="/admin/categories" element={<Categories/>}/><Route path="/admin/auditlogs" element={<AuditLogs/>}/>
+</Routes></AppLayout></AuthProvider>}

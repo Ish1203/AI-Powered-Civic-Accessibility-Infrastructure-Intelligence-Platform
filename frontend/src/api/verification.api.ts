@@ -1,0 +1,1 @@
+import api from "./client"; export const verify=async(id:number,data:any)=>(await api.post(`/issues/${id}/verify`,null,{params:data})).data;

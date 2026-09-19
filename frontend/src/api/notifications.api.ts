@@ -1,0 +1,1 @@
+import api from "./client"; export const notifications=async()=> (await api.get("/notifications")).data;

@@ -1,0 +1,1 @@
+export const allowedImageTypes=["image/jpeg","image/png","image/webp"];export const maxUploadBytes=10*1024*1024;export function validImage(file:File){return allowedImageTypes.includes(file.type)&&file.size<=maxUploadBytes}

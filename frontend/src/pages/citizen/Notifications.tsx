@@ -1,0 +1,1 @@
+export default function Notifications(){return <div className="ap-container ap-section"><div className="ap-pagehead"><div className="ap-eyebrow">UPDATES</div><h1>Notifications</h1></div><div className="ap-card"><b>Nothing new</b><p className="ap-muted">Status changes and verification requests will appear here.</p></div></div>}

@@ -1,0 +1,1 @@
+export interface Analytics{total:number;open:number;resolved:number;critical:number;accessibility:number;by_category:Record<string,number>}

@@ -1,0 +1,1 @@
+import api from "./client"; export const listIssues=async()=> (await api.get("/issues")).data; export const updateStatus=async(id:number,status:string)=>(await api.patch(`/issues/${id}/status`,null,{params:{status}})).data; export const assign=async(id:number,department_id:number)=>(await api.post(`/issues/${id}/assign`,null,{params:{department_id}})).data;

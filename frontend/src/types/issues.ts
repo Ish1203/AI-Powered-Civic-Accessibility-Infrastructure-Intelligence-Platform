@@ -1,0 +1,1 @@
+export interface Issue{id:number;civic_issue_id:string;title:string;status:string;category:string;severity:string;department?:string;lat:number;lon:number;created_at:string}

@@ -1,0 +1,1 @@
+export interface MapIssue{id:number;civic_issue_id:string;category:string;severity:string;status:string;lat:number;lon:number}

@@ -1,0 +1,1 @@
+import {Navigate} from "react-router-dom";export default function ProtectedRoute({children,allowed=true}:any){return allowed?children:<Navigate to="/login" replace/>}

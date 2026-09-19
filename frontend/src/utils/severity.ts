@@ -1,0 +1,1 @@
+export const severityWeight={low:20,medium:45,high:70,critical:95};

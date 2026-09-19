@@ -1,0 +1,1 @@
+import api from "./client"; export const login=async(data:any)=>(await api.post("/auth/login",data)).data; export const register=async(data:any)=>(await api.post("/auth/register",data)).data;

@@ -1,0 +1,1 @@
+export default function RoleRoute({children}:any){return children}

@@ -1,0 +1,1 @@
+import api from "./client"; export const analytics=async()=> (await api.get("/analytics")).data;
