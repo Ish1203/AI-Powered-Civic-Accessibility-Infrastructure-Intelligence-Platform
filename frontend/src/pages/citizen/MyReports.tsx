@@ -16,21 +16,22 @@ const MyReports = () => {
   const { reports, loading } = useReports();
 
   const filteredReports = useMemo(() => {
+    const searchText = search.toLowerCase();
+
     return reports.filter((report) => {
+      const title = String(report.title ?? "");
+      const category = String(report.category ?? "");
+      const civicIssueId = String(report.civicIssueId ?? "");
+
       const matchesSearch =
-        report.title
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        report.category
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        report.civicIssueId
-          ?.toLowerCase()
-          .includes(search.toLowerCase());
+        title.toLowerCase().includes(searchText) ||
+        category.toLowerCase().includes(searchText) ||
+        civicIssueId.toLowerCase().includes(searchText);
 
       const matchesStatus =
         status === "ALL" ||
-        report.status === status;
+        String(report.status ?? "").toUpperCase() ===
+          status.toUpperCase();
 
       return matchesSearch && matchesStatus;
     });
@@ -40,6 +41,7 @@ const MyReports = () => {
     <div className="min-h-screen bg-[#f6f8f7] px-4 py-6 md:px-8">
       <div className="mx-auto max-w-7xl">
 
+        {/* Header */}
         <div className="mb-7">
           <p className="text-sm font-medium text-slate-500">
             Citizen portal
@@ -58,6 +60,7 @@ const MyReports = () => {
         <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-3 md:flex-row">
 
+            {/* Search */}
             <div className="relative flex-1">
               <Search
                 size={18}
@@ -74,6 +77,7 @@ const MyReports = () => {
               />
             </div>
 
+            {/* Status filter */}
             <div className="relative">
               <Filter
                 size={16}
@@ -90,21 +94,27 @@ const MyReports = () => {
                 <option value="ALL">
                   All statuses
                 </option>
+
                 <option value="REPORTED">
                   Reported
                 </option>
+
                 <option value="AI VERIFIED">
                   AI Verified
                 </option>
+
                 <option value="ASSIGNED">
                   Assigned
                 </option>
+
                 <option value="IN PROGRESS">
                   In Progress
                 </option>
+
                 <option value="RESOLVED">
                   Resolved
                 </option>
+
                 <option value="CLOSED">
                   Closed
                 </option>
@@ -127,7 +137,9 @@ const MyReports = () => {
 
                   <div className="flex-1 space-y-3">
                     <div className="h-4 w-1/2 animate-pulse rounded bg-slate-100" />
+
                     <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+
                     <div className="h-3 w-2/3 animate-pulse rounded bg-slate-100" />
                   </div>
                 </div>
@@ -150,73 +162,111 @@ const MyReports = () => {
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {filteredReports.map((report) => (
-                <Link
-                  key={report.id}
-                  to={`/reports/${report.id}`}
-                  className="group flex gap-4 p-5 transition hover:bg-slate-50"
-                >
-                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
-                    {report.imageUrl ? (
-                      <img
-                        src={report.imageUrl}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <MapPin className="text-slate-400" />
-                      </div>
-                    )}
-                  </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <h2 className="font-semibold text-slate-800 group-hover:text-[#21634d]">
-                          {report.title}
-                        </h2>
+              {filteredReports.map((report) => {
+                const location = report.location;
 
-                        <p className="mt-1 text-xs text-slate-500">
-                          {report.civicIssueId ||
-                            report.id}
-                        </p>
-                      </div>
+                const title =
+                  report.title || "Civic Issue";
 
-                      <StatusBadge
-                        status={report.status}
-                      />
-                    </div>
+                const category =
+                  report.category || "Other";
 
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
-                      <span>{report.category}</span>
+                const issueType =
+                  report.issueType || "Civic Issue";
 
-                      <span>•</span>
+                const statusValue =
+                  report.status || "REPORTED";
 
-                      <span>
-                        {report.issueType}
-                      </span>
+                const locationAddress =
+                  location?.address ||
+                  "Location not available";
 
-                      {report.location.address && (
-                        <>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} />
-                            {report.location.address}
-                          </span>
-                        </>
+                return (
+                  <Link
+                    key={report.id}
+                    to={`/reports/${report.id}`}
+                    className="group flex gap-4 p-5 transition hover:bg-slate-50"
+                  >
+
+                    {/* Image */}
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+
+                      {report.imageUrl ? (
+                        <img
+                          src={report.imageUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <MapPin className="text-slate-400" />
+                        </div>
                       )}
-                    </div>
-                  </div>
 
-                  <ArrowRight
-                    size={18}
-                    className="hidden self-center text-slate-300 group-hover:text-[#21634d] md:block"
-                  />
-                </Link>
-              ))}
+                    </div>
+
+                    {/* Content */}
+                    <div className="min-w-0 flex-1">
+
+                      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+
+                        <div>
+                          <h2 className="font-semibold text-slate-800 group-hover:text-[#21634d]">
+                            {title}
+                          </h2>
+
+                          <p className="mt-1 text-xs text-slate-500">
+                            {report.civicIssueId ||
+                              report.id}
+                          </p>
+                        </div>
+
+                        <StatusBadge
+                          status={statusValue}
+                        />
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+
+                        <span>
+                          {category}
+                        </span>
+
+                        <span>•</span>
+
+                        <span>
+                          {issueType}
+                        </span>
+
+                        {location?.address && (
+                          <>
+                            <span>•</span>
+
+                            <span className="flex items-center gap-1">
+                              <MapPin size={12} />
+
+                              {locationAddress}
+                            </span>
+                          </>
+                        )}
+
+                      </div>
+                    </div>
+
+                    {/* Arrow */}
+                    <ArrowRight
+                      size={18}
+                      className="hidden self-center text-slate-300 group-hover:text-[#21634d] md:block"
+                    />
+
+                  </Link>
+                );
+              })}
+
             </div>
           )}
+
         </div>
       </div>
     </div>
@@ -229,22 +279,36 @@ const StatusBadge = ({
   status: string;
 }) => {
   const styles: Record<string, string> = {
-    REPORTED: "bg-slate-100 text-slate-700",
-    "AI VERIFIED": "bg-blue-50 text-blue-700",
-    ASSIGNED: "bg-purple-50 text-purple-700",
-    "IN PROGRESS": "bg-amber-50 text-amber-700",
-    RESOLVED: "bg-emerald-50 text-emerald-700",
-    CLOSED: "bg-green-50 text-green-700",
+    REPORTED:
+      "bg-slate-100 text-slate-700",
+
+    "AI VERIFIED":
+      "bg-blue-50 text-blue-700",
+
+    ASSIGNED:
+      "bg-purple-50 text-purple-700",
+
+    "IN PROGRESS":
+      "bg-amber-50 text-amber-700",
+
+    RESOLVED:
+      "bg-emerald-50 text-emerald-700",
+
+    CLOSED:
+      "bg-green-50 text-green-700",
   };
+
+  const normalizedStatus =
+    String(status ?? "REPORTED").toUpperCase();
 
   return (
     <span
       className={`w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-        styles[status] ||
+        styles[normalizedStatus] ||
         "bg-slate-100 text-slate-600"
       }`}
     >
-      {status}
+      {normalizedStatus}
     </span>
   );
 };

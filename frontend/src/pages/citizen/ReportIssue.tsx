@@ -11,7 +11,10 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import useReports from "../../hooks/useReports";
+import type { AIAnalysis } from "../../api/reports.api";
 
 type Step = 1 | 2 | 3;
 
@@ -22,6 +25,17 @@ interface LocationData {
 }
 
 const ReportIssue = () => {
+  const navigate = useNavigate();
+
+  const {
+    createReport,
+    analyzeReport,
+    creating,
+    analyzing,
+  } = useReports({
+    autoFetch: false,
+  });
+
   const [step, setStep] = useState<Step>(1);
 
   const [image, setImage] = useState<File | null>(null);
@@ -33,14 +47,17 @@ const ReportIssue = () => {
   const [description, setDescription] =
     useState("");
 
-  const [analyzing, setAnalyzing] =
-    useState(false);
-
   const [analysisComplete, setAnalysisComplete] =
     useState(false);
 
+  const [analysis, setAnalysis] =
+    useState<AIAnalysis | null>(null);
+
   const [submitted, setSubmitted] =
     useState(false);
+
+  const [createdReportId, setCreatedReportId] =
+    useState<string | null>(null);
 
   const [dragActive, setDragActive] =
     useState(false);
@@ -63,10 +80,17 @@ const ReportIssue = () => {
       return;
     }
 
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
+
     setImage(file);
 
     const url = URL.createObjectURL(file);
     setPreview(url);
+
+    setAnalysisComplete(false);
+    setAnalysis(null);
   };
 
   const handleFileChange = (
@@ -80,9 +104,14 @@ const ReportIssue = () => {
   };
 
   const removeImage = () => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
+
     setImage(null);
     setPreview("");
     setAnalysisComplete(false);
+    setAnalysis(null);
   };
 
   /* ---------------- LOCATION ---------------- */
@@ -104,6 +133,8 @@ const ReportIssue = () => {
           longitude: position.coords.longitude,
           address: "Current detected location",
         });
+
+        setError("");
       },
       () => {
         setError(
@@ -115,25 +146,79 @@ const ReportIssue = () => {
 
   /* ---------------- AI ANALYSIS ---------------- */
 
-  const runAnalysis = () => {
+  const runAnalysis = async () => {
     if (!image) {
       setError("Please upload an image first.");
       return;
     }
 
     setError("");
-    setAnalyzing(true);
+    setAnalysisComplete(false);
 
-    setTimeout(() => {
-      setAnalyzing(false);
+    try {
+      const result = await analyzeReport({
+        image,
+        latitude: location?.latitude ?? 0,
+        longitude: location?.longitude ?? 0,
+        address: location?.address,
+        description: description || undefined,
+      });
+
+      console.log(
+        "AI ANALYSIS RESULT:",
+        result
+      );
+
+      setAnalysis(result);
       setAnalysisComplete(true);
-    }, 1800);
+    } catch (err) {
+      console.error(
+        "AI analysis failed:",
+        err
+      );
+
+      setError(
+        "AI analysis failed. Please try again."
+      );
+    }
   };
 
-  /* ---------------- SUBMIT ---------------- */
+  /* ---------------- SUBMIT REPORT ---------------- */
 
-  const submitReport = () => {
-    setSubmitted(true);
+  const submitReport = async () => {
+    if (!image) {
+      setError("Please upload an image.");
+      return;
+    }
+
+    setError("");
+
+    try {
+      const report = await createReport({
+        image,
+        latitude: location?.latitude ?? 0,
+        longitude: location?.longitude ?? 0,
+        address: location?.address,
+        description: description || undefined,
+      });
+
+      console.log(
+        "REPORT CREATED SUCCESSFULLY:",
+        report
+      );
+
+      setCreatedReportId(report.id);
+      setSubmitted(true);
+    } catch (err) {
+      console.error(
+        "REPORT SUBMISSION ERROR:",
+        err
+      );
+
+      setError(
+        "Unable to submit the report. Please try again."
+      );
+    }
   };
 
   /* ---------------- CLEANUP ---------------- */
@@ -152,7 +237,6 @@ const ReportIssue = () => {
     return (
       <div className="min-h-screen bg-slate-50 px-6 py-12">
         <div className="mx-auto max-w-2xl">
-
           <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
 
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
@@ -178,9 +262,9 @@ const ReportIssue = () => {
               </p>
 
               <p className="mt-1 text-lg font-bold text-slate-900">
-                KAN-{Math.floor(
-                  1000 + Math.random() * 9000
-                )}
+                {createdReportId
+                  ? createdReportId
+                  : "Report created"}
               </p>
 
               <p className="mt-3 text-xs text-slate-500">
@@ -191,24 +275,23 @@ const ReportIssue = () => {
 
             <div className="mt-7 flex justify-center gap-3">
 
-              <Link
-                to="/my-reports"
+              <button
+                onClick={() => navigate("/my-reports")}
                 className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
               >
                 View My Reports
-              </Link>
+              </button>
 
-              <Link
-                to="/dashboard"
+              <button
+                onClick={() => navigate("/dashboard")}
                 className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Dashboard
-              </Link>
+              </button>
 
             </div>
 
           </div>
-
         </div>
       </div>
     );
@@ -394,6 +477,7 @@ const ReportIssue = () => {
                   />
 
                   <button
+                    type="button"
                     onClick={removeImage}
                     className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white text-slate-700 shadow-md hover:bg-slate-100"
                   >
@@ -508,6 +592,7 @@ const ReportIssue = () => {
                       </p>
 
                       <button
+                        type="button"
                         onClick={detectLocation}
                         className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
                       >
@@ -545,7 +630,9 @@ const ReportIssue = () => {
                 <textarea
                   value={description}
                   onChange={(e) =>
-                    setDescription(e.target.value)
+                    setDescription(
+                      e.target.value.slice(0, 1000)
+                    )
                   }
                   placeholder="Describe anything important that may not be visible in the photo..."
                   rows={5}
@@ -583,6 +670,7 @@ const ReportIssue = () => {
                   </p>
 
                   <button
+                    type="button"
                     onClick={() => setStep(1)}
                     className="mt-4 text-sm font-semibold text-slate-600 hover:text-slate-900"
                   >
@@ -665,10 +753,14 @@ const ReportIssue = () => {
                       </p>
 
                       <button
+                        type="button"
                         onClick={runAnalysis}
-                        className="mt-5 rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+                        disabled={analyzing}
+                        className="mt-5 rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Analyze Photo
+                        {analyzing
+                          ? "Analyzing..."
+                          : "Analyze Photo"}
                       </button>
                     </>
                   )}
@@ -679,28 +771,58 @@ const ReportIssue = () => {
 
                   <ResultRow
                     label="Detected issue"
-                    value="Blocked footpath"
+                    value={
+                      analysis?.issueType ||
+                      "Not detected"
+                    }
                   />
 
                   <ResultRow
                     label="Category"
-                    value="Accessibility"
+                    value={
+                      analysis?.category ||
+                      "Not detected"
+                    }
                   />
 
                   <ResultRow
                     label="Confidence"
-                    value="92%"
+                    value={
+                      analysis
+                        ? `${Math.round(
+                            analysis.confidence <= 1
+                              ? analysis.confidence * 100
+                              : analysis.confidence
+                          )}%`
+                        : "N/A"
+                    }
                   />
 
                   <ResultRow
                     label="Severity"
-                    value="High"
+                    value={
+                      analysis?.severity ||
+                      "Not detected"
+                    }
                   />
 
                   <ResultRow
                     label="Accessibility impact"
-                    value="Pedestrian / wheelchair route affected"
+                    value={
+                      analysis?.accessibilityImpact ||
+                      "Not detected"
+                    }
                   />
+
+                  {analysis?.detectedObjects &&
+                    analysis.detectedObjects.length > 0 && (
+                      <ResultRow
+                        label="Detected objects"
+                        value={analysis.detectedObjects.join(
+                          ", "
+                        )}
+                      />
+                    )}
 
                   <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
 
@@ -709,9 +831,9 @@ const ReportIssue = () => {
                     </p>
 
                     <p className="mt-1 text-sm leading-5 text-amber-900">
-                      The visible obstruction appears to
-                      restrict pedestrian movement on the
-                      footpath.
+                      {analysis?.description ||
+                        analysis?.safetyRisk ||
+                        "The AI analysis has been completed."}
                     </p>
 
                   </div>
@@ -720,6 +842,8 @@ const ReportIssue = () => {
               )}
 
             </div>
+
+            {/* SUMMARY */}
 
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -731,7 +855,10 @@ const ReportIssue = () => {
 
                 <SummaryItem
                   label="Photo"
-                  value={image?.name || "Not selected"}
+                  value={
+                    image?.name ||
+                    "Not selected"
+                  }
                 />
 
                 <SummaryItem
@@ -740,7 +867,9 @@ const ReportIssue = () => {
                     location
                       ? `${location.latitude.toFixed(
                           4
-                        )}, ${location.longitude.toFixed(4)}`
+                        )}, ${location.longitude.toFixed(
+                          4
+                        )}`
                       : "Not provided"
                   }
                 />
@@ -757,11 +886,18 @@ const ReportIssue = () => {
 
               {analysisComplete && (
                 <button
+                  type="button"
                   onClick={submitReport}
-                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
+                  disabled={creating}
+                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Submit Civic Report
-                  <ArrowRight size={17} />
+                  {creating
+                    ? "Submitting..."
+                    : "Submit Civic Report"}
+
+                  {!creating && (
+                    <ArrowRight size={17} />
+                  )}
                 </button>
               )}
 
@@ -776,10 +912,12 @@ const ReportIssue = () => {
 
           {step > 1 ? (
             <button
+              type="button"
               onClick={() =>
                 setStep((step - 1) as Step)
               }
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              disabled={analyzing || creating}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
             >
               <ArrowLeft size={16} />
               Back
@@ -790,6 +928,7 @@ const ReportIssue = () => {
 
           {step === 1 && image && (
             <button
+              type="button"
               onClick={() => setStep(2)}
               className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
             >
@@ -800,6 +939,7 @@ const ReportIssue = () => {
 
           {step === 2 && (
             <button
+              type="button"
               onClick={() => setStep(3)}
               className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
             >

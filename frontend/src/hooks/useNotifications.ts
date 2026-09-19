@@ -27,9 +27,29 @@ export const useNotifications = () => {
         const data =
           await notificationsApi.getAll();
 
-        setNotifications(data);
+        // API may return:
+        // 1. Notification[]
+        // 2. { notifications: Notification[] }
+        // 3. { data: Notification[] }
+
+        const notificationList: Notification[] =
+          Array.isArray(data)
+            ? data
+            : Array.isArray(data?.notifications)
+            ? data.notifications
+            : Array.isArray(data?.data)
+            ? data.data
+            : [];
+
+        setNotifications(notificationList);
         setError(null);
-      } catch {
+      } catch (err) {
+        console.error(
+          "Failed to fetch notifications:",
+          err
+        );
+
+        setNotifications([]);
         setError(
           "Unable to load notifications."
         );
@@ -45,35 +65,51 @@ export const useNotifications = () => {
   const markAsRead = async (
     id: string
   ) => {
-    await notificationsApi.markAsRead(id);
+    try {
+      await notificationsApi.markAsRead(id);
 
-    setNotifications((previous) =>
-      previous.map((notification) =>
-        notification.id === id
-          ? {
-              ...notification,
-              read: true,
-            }
-          : notification
-      )
-    );
+      setNotifications((previous) =>
+        previous.map((notification) =>
+          notification.id === id
+            ? {
+                ...notification,
+                read: true,
+              }
+            : notification
+        )
+      );
+    } catch (err) {
+      console.error(
+        "Failed to mark notification as read:",
+        err
+      );
+    }
   };
 
   const markAllAsRead = async () => {
-    await notificationsApi.markAllAsRead();
+    try {
+      await notificationsApi.markAllAsRead();
 
-    setNotifications((previous) =>
-      previous.map((notification) => ({
-        ...notification,
-        read: true,
-      }))
-    );
+      setNotifications((previous) =>
+        previous.map((notification) => ({
+          ...notification,
+          read: true,
+        }))
+      );
+    } catch (err) {
+      console.error(
+        "Failed to mark all notifications as read:",
+        err
+      );
+    }
   };
 
   const unreadCount =
-    notifications.filter(
-      (notification) => !notification.read
-    ).length;
+    Array.isArray(notifications)
+      ? notifications.filter(
+          (notification) => !notification.read
+        ).length
+      : 0;
 
   return {
     notifications,

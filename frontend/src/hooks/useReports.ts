@@ -21,9 +21,8 @@ export const useReports = ({
   const [selectedReport, setSelectedReport] =
     useState<CivicReport | null>(null);
 
-  const [analysis, setAnalysis] = useState<AIAnalysis | null>(
-    null
-  );
+  const [analysis, setAnalysis] =
+    useState<AIAnalysis | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -31,9 +30,9 @@ export const useReports = ({
 
   const [error, setError] = useState<string | null>(null);
 
-  // --------------------------------------------------
+  // -------------------------------
   // Fetch all reports
-  // --------------------------------------------------
+  // -------------------------------
 
   const fetchReports = useCallback(async () => {
     setLoading(true);
@@ -41,9 +40,29 @@ export const useReports = ({
 
     try {
       const data = await reportsApi.getAll(filters);
-      setReports(data);
+
+      console.log("REPORTS API RESPONSE:", data);
+
+      // Handle different backend response formats
+      let reportList: CivicReport[] = [];
+
+      if (Array.isArray(data)) {
+        reportList = data;
+      } else if (
+        Array.isArray((data as any)?.reports)
+      ) {
+        reportList = (data as any).reports;
+      } else if (
+        Array.isArray((data as any)?.data)
+      ) {
+        reportList = (data as any).data;
+      }
+
+      setReports(reportList);
     } catch (err) {
       console.error("Failed to fetch reports:", err);
+
+      setReports([]);
 
       setError(
         "Unable to load reports. Please try again."
@@ -53,9 +72,9 @@ export const useReports = ({
     }
   }, [filters]);
 
-  // --------------------------------------------------
+  // -------------------------------
   // Fetch single report
-  // --------------------------------------------------
+  // -------------------------------
 
   const fetchReport = useCallback(
     async (id: string) => {
@@ -74,9 +93,7 @@ export const useReports = ({
           err
         );
 
-        setError(
-          "Unable to load this report."
-        );
+        setError("Unable to load this report.");
 
         return null;
       } finally {
@@ -86,9 +103,9 @@ export const useReports = ({
     []
   );
 
-  // --------------------------------------------------
+  // -------------------------------
   // AI analysis
-  // --------------------------------------------------
+  // -------------------------------
 
   const analyzeReport = useCallback(
     async (payload: CreateReportPayload) => {
@@ -121,9 +138,9 @@ export const useReports = ({
     []
   );
 
-  // --------------------------------------------------
+  // -------------------------------
   // Create report
-  // --------------------------------------------------
+  // -------------------------------
 
   const createReport = useCallback(
     async (payload: CreateReportPayload) => {
@@ -133,6 +150,11 @@ export const useReports = ({
       try {
         const report =
           await reportsApi.create(payload);
+
+        console.log(
+          "CREATED REPORT:",
+          report
+        );
 
         setReports((previous) => [
           report,
@@ -160,9 +182,9 @@ export const useReports = ({
     []
   );
 
-  // --------------------------------------------------
+  // -------------------------------
   // Submit report
-  // --------------------------------------------------
+  // -------------------------------
 
   const submitReport = useCallback(
     async (id: string) => {
@@ -202,9 +224,9 @@ export const useReports = ({
     []
   );
 
-  // --------------------------------------------------
+  // -------------------------------
   // Update report
-  // --------------------------------------------------
+  // -------------------------------
 
   const updateReport = useCallback(
     async (
@@ -254,26 +276,25 @@ export const useReports = ({
     []
   );
 
-  // --------------------------------------------------
+  // -------------------------------
   // Clear analysis
-  // --------------------------------------------------
+  // -------------------------------
 
   const clearAnalysis = useCallback(() => {
     setAnalysis(null);
   }, []);
 
-  // --------------------------------------------------
+  // -------------------------------
   // Clear selected report
-  // --------------------------------------------------
+  // -------------------------------
 
-  const clearSelectedReport =
-    useCallback(() => {
-      setSelectedReport(null);
-    }, []);
+  const clearSelectedReport = useCallback(() => {
+    setSelectedReport(null);
+  }, []);
 
-  // --------------------------------------------------
+  // -------------------------------
   // Initial fetch
-  // --------------------------------------------------
+  // -------------------------------
 
   useEffect(() => {
     if (autoFetch) {
@@ -281,9 +302,9 @@ export const useReports = ({
     }
   }, [autoFetch, fetchReports]);
 
-  // --------------------------------------------------
+  // -------------------------------
   // Derived values
-  // --------------------------------------------------
+  // -------------------------------
 
   const totalReports = reports.length;
 
@@ -308,25 +329,21 @@ export const useReports = ({
     reports.filter(
       (report) =>
         report.category
-          .toLowerCase()
+          ?.toLowerCase()
           .includes("accessibility")
     ).length;
 
   return {
-    // Data
     reports,
     selectedReport,
     analysis,
 
-    // Loading states
     loading,
     analyzing,
     creating,
 
-    // Error
     error,
 
-    // Actions
     fetchReports,
     fetchReport,
     analyzeReport,
@@ -334,11 +351,9 @@ export const useReports = ({
     submitReport,
     updateReport,
 
-    // Reset
     clearAnalysis,
     clearSelectedReport,
 
-    // Derived dashboard values
     totalReports,
     resolvedReports,
     pendingReports,

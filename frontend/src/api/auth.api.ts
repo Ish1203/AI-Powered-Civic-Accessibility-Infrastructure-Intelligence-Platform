@@ -1,63 +1,43 @@
-import apiClient from "./client";
+import api from "./client";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "CITIZEN" | "AUTHORITY" | "ADMIN";
-  phone?: string;
-  avatar?: string;
-}
-
-export interface LoginPayload {
+export type LoginData = {
   email: string;
   password: string;
-}
+};
 
-export interface RegisterPayload {
+export type RegisterData = {
   name: string;
   email: string;
   password: string;
   phone?: string;
-}
+};
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  user: User;
-}
+export const register = async (
+  data: RegisterData
+) => {
+  const response = await api.post(
+    "/auth/register",
+    data
+  );
 
-export const authApi = {
-  async login(payload: LoginPayload) {
-    const response = await apiClient.post<AuthResponse>(
-      "/auth/login",
-      payload
-    );
+  return response.data;
+};
 
-    return response.data;
-  },
+export const login = async (
+  data: LoginData
+) => {
+  const response = await api.post(
+    "/auth/login",
+    data
+  );
 
-  async register(payload: RegisterPayload) {
-    const response = await apiClient.post<AuthResponse>(
-      "/auth/register",
-      payload
-    );
+  return response.data;
+};
 
-    return response.data;
-  },
+export const getCurrentUser = async () => {
+  const response = await api.get(
+    "/auth/me"
+  );
 
-  async me() {
-    const response = await apiClient.get<User>("/auth/me");
-
-    return response.data;
-  },
-
-  async logout() {
-    try {
-      await apiClient.post("/auth/logout");
-    } finally {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-    }
-  },
+  return response.data;
 };

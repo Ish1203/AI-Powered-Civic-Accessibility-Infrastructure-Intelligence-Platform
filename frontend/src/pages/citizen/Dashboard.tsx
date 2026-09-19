@@ -48,8 +48,9 @@ const Dashboard = () => {
             </p>
           </div>
 
+          {/* Report Issue */}
           <Link
-            to="/report-issue"
+            to="/report"
             className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#143c2e] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0f3025]"
           >
             <Plus size={18} />
@@ -59,7 +60,6 @@ const Dashboard = () => {
 
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
           <StatCard
             title="Total reports"
             value={totalReports}
@@ -148,8 +148,9 @@ const Dashboard = () => {
                     Your submitted civic issues will appear here.
                   </p>
 
+                  {/* Create first report */}
                   <Link
-                    to="/report-issue"
+                    to="/report"
                     className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#143c2e] px-4 py-2.5 text-sm font-semibold text-white"
                   >
                     <Plus size={16} />
@@ -189,8 +190,7 @@ const Dashboard = () => {
                           </h3>
 
                           <p className="mt-1 text-xs text-slate-500">
-                            {report.civicIssueId ||
-                              report.id}
+                            {report.civicIssueId || report.id}
                           </p>
                         </div>
 
@@ -206,7 +206,7 @@ const Dashboard = () => {
 
                         <span className="flex items-center gap-1">
                           <MapPin size={13} />
-                          {report.location.city ||
+                          {report.location?.city ||
                             "Location available"}
                         </span>
                       </div>
@@ -241,8 +241,9 @@ const Dashboard = () => {
                 make public spaces easier to navigate.
               </p>
 
+              {/* Report a barrier */}
               <Link
-                to="/report-issue"
+                to="/report"
                 className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#21634d]"
               >
                 Report a barrier
@@ -250,7 +251,7 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            {/* Notification */}
+            {/* Notifications */}
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-slate-800">

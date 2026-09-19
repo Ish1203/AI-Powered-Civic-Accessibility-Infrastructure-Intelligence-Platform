@@ -5,11 +5,13 @@ import {
   type ReactNode,
 } from "react";
 
-type User = {
-  id?: string;
+export type User = {
+  id?: number | string;
   name?: string;
   email?: string;
   role?: string;
+  phone?: string;
+  is_active?: boolean;
 };
 
 type AuthContextType = {
@@ -19,9 +21,10 @@ type AuthContextType = {
   isAuthenticated: boolean;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+const AuthContext =
+  createContext<AuthContextType | undefined>(
+    undefined
+  );
 
 export const AuthProvider = ({
   children,
@@ -29,36 +32,44 @@ export const AuthProvider = ({
   children: ReactNode;
 }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser =
+      localStorage.getItem("user");
 
     if (!storedUser) return null;
 
     try {
       return JSON.parse(storedUser);
     } catch {
+      localStorage.removeItem("user");
       return null;
     }
   });
 
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(userData)
+    );
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
-  };
 
-  const value = {
-    user,
-    login,
-    logout,
-    isAuthenticated: !!user,
+    localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
