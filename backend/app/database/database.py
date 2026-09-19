@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine
+
 from app.config import settings
+from app.database.base import Base
 
 
 engine = create_engine(
@@ -9,14 +11,18 @@ engine = create_engine(
 
 
 def init_db():
-    from app.database.base import Base
-    from app.models import user
-    from app.models import role
-    from app.models import civic_issue
-    from app.models import issue_category
-    from app.models import department
-    from app.models import assignment
-    from app.models import audit_log
-    from app.models import citizen_verification
 
-    Base.metadata.create_all(bind=engine)
+    # Import models so SQLAlchemy registers them
+    from app.models.user import User
+    from app.models.civic_issue import CivicIssue
+    from app.models.issue_category import IssueCategory
+    from app.models.department import Department
+    from app.models.assignment import Assignment
+    from app.models.audit_log import AuditLog
+    from app.models.citizen_verification import (
+        CitizenVerification
+    )
+
+    Base.metadata.create_all(
+        bind=engine
+    )
