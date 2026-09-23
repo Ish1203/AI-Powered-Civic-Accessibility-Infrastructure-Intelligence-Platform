@@ -31,35 +31,77 @@ export const AuthProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const storedUser =
-      localStorage.getItem("user");
 
-    if (!storedUser) return null;
+  // =========================
+  // LOAD USER FROM LOCAL STORAGE
+  // =========================
+
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return null;
+    }
 
     try {
-      return JSON.parse(storedUser);
+      const parsedUser = JSON.parse(storedUser);
+
+      return {
+        ...parsedUser,
+        role: String(
+          parsedUser?.role || ""
+        ).toUpperCase(),
+      };
     } catch {
       localStorage.removeItem("user");
+      localStorage.removeItem("access_token");
+
       return null;
     }
   });
 
+  // =========================
+  // LOGIN
+  // =========================
+
   const login = (userData: User) => {
-    setUser(userData);
+
+    const normalizedUser: User = {
+      ...userData,
+
+      role: String(
+        userData?.role || ""
+      ).toUpperCase(),
+    };
+
+    console.log(
+      "AUTH CONTEXT USER:",
+      normalizedUser
+    );
+
+    setUser(normalizedUser);
 
     localStorage.setItem(
       "user",
-      JSON.stringify(userData)
+      JSON.stringify(normalizedUser)
     );
   };
 
+  // =========================
+  // LOGOUT
+  // =========================
+
   const logout = () => {
+
     setUser(null);
 
     localStorage.removeItem("user");
     localStorage.removeItem("access_token");
   };
+
+  // =========================
+  // PROVIDER
+  // =========================
 
   return (
     <AuthContext.Provider
@@ -75,7 +117,12 @@ export const AuthProvider = ({
   );
 };
 
+// =========================
+// USE AUTH CONTEXT
+// =========================
+
 export const useAuthContext = () => {
+
   const context = useContext(AuthContext);
 
   if (!context) {
