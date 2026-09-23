@@ -6,6 +6,7 @@ import {
   Phone,
   ShieldCheck,
   UserRound,
+  Users,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -18,7 +19,8 @@ const Register = () => {
   const { register } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -26,13 +28,14 @@ const Register = () => {
     phone: "",
     password: "",
     confirmPassword: "",
+    role: "CITIZEN",
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setForm({
       ...form,
@@ -47,7 +50,6 @@ const Register = () => {
 
     setError("");
 
-    // Validation
     if (
       !form.name.trim() ||
       !form.email.trim() ||
@@ -60,7 +62,9 @@ const Register = () => {
     }
 
     if (form.password.length < 8) {
-      setError("Password must contain at least 8 characters.");
+      setError(
+        "Password must contain at least 8 characters."
+      );
       return;
     }
 
@@ -70,44 +74,58 @@ const Register = () => {
     }
 
     if (!/^\d{10}$/.test(form.phone)) {
-      setError("Please enter a valid 10-digit phone number.");
+      setError(
+        "Please enter a valid 10-digit phone number."
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      // Backend: POST /api/auth/register
       const user = await register({
         name: form.name.trim(),
         email: form.email.trim(),
         password: form.password,
         phone: form.phone,
+        role: form.role,
       });
 
-      console.log("Registration successful:", user);
+      console.log(
+        "Registration successful:",
+        user
+      );
 
-      // Backend currently creates CITIZEN accounts
       navigate("/login", {
         state: {
-          message: "Account created successfully. Please sign in.",
+          message:
+            "Account created successfully. Please sign in.",
         },
       });
     } catch (err: any) {
-      console.error("Registration error:", err);
+      console.error(
+        "Registration error:",
+        err
+      );
 
-      const detail = err?.response?.data?.detail;
+      const detail =
+        err?.response?.data?.detail;
 
       if (typeof detail === "string") {
         setError(detail);
       } else if (Array.isArray(detail)) {
         setError(
           detail
-            .map((item: any) => item?.msg || "Invalid input")
+            .map(
+              (item: any) =>
+                item?.msg || "Invalid input"
+            )
             .join(", ")
         );
       } else {
-        setError("Unable to create your account. Please try again.");
+        setError(
+          "Unable to create your account. Please try again."
+        );
       }
     } finally {
       setLoading(false);
@@ -353,6 +371,49 @@ const Register = () => {
 
             </div>
 
+            {/* ROLE */}
+
+            <div>
+
+              <label className="text-sm font-medium text-slate-200">
+                Account type
+              </label>
+
+              <div className="relative mt-2">
+
+                <Users
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  className="w-full appearance-none rounded-xl border border-slate-700 bg-slate-900 py-3 pl-10 pr-4 text-sm text-white outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
+                >
+                  <option value="CITIZEN">
+                    Citizen
+                  </option>
+
+                  <option value="AUTHORITY">
+                    Authority
+                  </option>
+
+                  <option value="ADMIN">
+                    Admin
+                  </option>
+                </select>
+
+              </div>
+
+              <p className="mt-2 text-xs text-slate-500">
+                Select an account type for testing the
+                role-based dashboard.
+              </p>
+
+            </div>
+
             {/* PASSWORD */}
 
             <div>
@@ -364,7 +425,11 @@ const Register = () => {
               <div className="relative mt-2">
 
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
                   name="password"
                   value={form.password}
                   onChange={handleChange}
@@ -376,7 +441,9 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() =>
-                    setShowPassword(!showPassword)
+                    setShowPassword(
+                      !showPassword
+                    )
                   }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                 >
@@ -442,7 +509,6 @@ const Register = () => {
               type="submit"
               className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-60"
             >
-
               {loading
                 ? "Creating account..."
                 : "Create account"}
@@ -450,7 +516,6 @@ const Register = () => {
               {!loading && (
                 <ArrowRight size={17} />
               )}
-
             </button>
 
           </form>

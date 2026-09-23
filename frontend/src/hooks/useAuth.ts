@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthContext } from "../context/AuthContext";
+import type { RegisterRequest, UserRole } from "../types/auth";
 
 const API_URL = "http://127.0.0.1:8000";
 
@@ -10,12 +11,7 @@ const useAuth = () => {
   // REGISTER
   // =========================
 
-  const register = async (data: {
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-  }) => {
+  const register = async (data: RegisterRequest) => {
     const response = await axios.post(
       `${API_URL}/api/auth/register`,
       {
@@ -23,13 +19,11 @@ const useAuth = () => {
         email: data.email,
         password: data.password,
         phone: data.phone,
+        role: data.role,
       }
     );
 
-    console.log(
-      "REGISTER API RESPONSE:",
-      response.data
-    );
+    console.log("REGISTER API RESPONSE:", response.data);
 
     return response.data;
   };
@@ -50,41 +44,13 @@ const useAuth = () => {
       }
     );
 
-    console.log(
-      "LOGIN API RESPONSE:",
-      response.data
-    );
+    console.log("LOGIN API RESPONSE:", response.data);
 
     const responseData = response.data;
 
-    /*
-      Possible backend response:
+    const user = responseData.user ?? responseData;
 
-      {
-        access_token: "...",
-        token_type: "bearer",
-        user: {
-          id: 1,
-          name: "Anmol",
-          email: "anmol@test.com",
-          role: "CITIZEN"
-        }
-      }
-
-      OR:
-
-      {
-        id: 1,
-        name: "Anmol",
-        email: "anmol@test.com",
-        role: "CITIZEN"
-      }
-    */
-
-    const user =
-      responseData.user ?? responseData;
-
-    // Save JWT token
+    // Save JWT
     if (responseData.access_token) {
       localStorage.setItem(
         "access_token",
@@ -92,10 +58,16 @@ const useAuth = () => {
       );
     }
 
-    // Save user in AuthContext
-    auth.login(user);
+    // Normalize role
+    const normalizedUser = {
+      ...user,
+      role: String(user.role || "").toUpperCase() as UserRole,
+    };
 
-    return user;
+    // Save user
+    auth.login(normalizedUser);
+
+    return normalizedUser;
   };
 
   // =========================
@@ -104,16 +76,20 @@ const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem("access_token");
-
     auth.logout();
   };
 
   // =========================
-  // RETURN
+  // ROLE
   // =========================
 
-  const role =
-    auth.user?.role?.toUpperCase();
+  const role = String(
+    auth.user?.role || ""
+  ).toUpperCase();
+
+  // =========================
+  // RETURN
+  // =========================
 
   return {
     ...auth,
@@ -122,14 +98,11 @@ const useAuth = () => {
     login,
     logout,
 
-    isCitizen:
-      role === "CITIZEN",
+    isCitizen: role === "CITIZEN",
 
-    isAuthority:
-      role === "AUTHORITY",
+    isAuthority: role === "AUTHORITY",
 
-    isAdmin:
-      role === "ADMIN",
+    isAdmin: role === "ADMIN",
   };
 };
 
