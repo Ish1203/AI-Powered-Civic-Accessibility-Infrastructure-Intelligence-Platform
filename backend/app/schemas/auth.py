@@ -1,13 +1,15 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 
-class RegisterRequest(BaseModel):
+from app.models.role import UserRole
 
+
+class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
-    phone: str | None = None
-
+    phone: str
+    role: UserRole = UserRole.CITIZEN
 
 class LoginRequest(BaseModel):
 
