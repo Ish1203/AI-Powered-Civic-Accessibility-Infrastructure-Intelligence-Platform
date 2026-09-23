@@ -1,10 +1,10 @@
 export type UserRole =
-  | "citizen"
-  | "authority"
-  | "admin";
+  | "CITIZEN"
+  | "AUTHORITY"
+  | "ADMIN";
 
 export interface User {
-  id: string;
+  id: string | number;
   name: string;
   email: string;
   phone?: string;
@@ -25,6 +25,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   confirmPassword: string;
+  phone?: string;
   role?: UserRole;
 }
 
