@@ -26,7 +26,6 @@ import Departments from "../pages/admin/Departments";
 import Categories from "../pages/admin/Categories";
 import AuditLogs from "../pages/admin/AuditLogs";
 
-import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
 
 const AppRoutes = () => {
@@ -34,28 +33,19 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
 
-        {/* Public */}
+        {/* ================= PUBLIC ================= */}
 
         <Route path="/" element={<Landing />} />
+        <Route path="/explore-map" element={<ExploreMap />} />
 
-        <Route
-          path="/explore-map"
-          element={<ExploreMap />}
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+        {/* ================= CITIZEN ================= */}
 
-        {/* Citizen */}
+        <Route element={<RoleRoute roles={["citizen"]} />}>
 
-        <Route element={<ProtectedRoute />}>
           <Route
             path="/dashboard"
             element={<Dashboard />}
@@ -81,13 +71,27 @@ const AppRoutes = () => {
             element={<Notifications />}
           />
 
+        </Route>
+
+
+        {/* ================= PROFILE ================= */}
+        {/* All authenticated roles can access profile */}
+
+        <Route
+          element={
+            <RoleRoute
+              roles={["citizen", "authority", "admin"]}
+            />
+          }
+        >
           <Route
             path="/profile"
             element={<Profile />}
           />
         </Route>
 
-        {/* Authority */}
+
+        {/* ================= AUTHORITY ================= */}
 
         <Route element={<RoleRoute roles={["authority"]} />}>
 
@@ -123,7 +127,8 @@ const AppRoutes = () => {
 
         </Route>
 
-        {/* Admin */}
+
+        {/* ================= ADMIN ================= */}
 
         <Route element={<RoleRoute roles={["admin"]} />}>
 
@@ -154,7 +159,8 @@ const AppRoutes = () => {
 
         </Route>
 
-        {/* Fallback */}
+
+        {/* ================= FALLBACK ================= */}
 
         <Route
           path="*"

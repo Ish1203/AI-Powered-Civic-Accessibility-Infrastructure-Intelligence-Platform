@@ -12,8 +12,19 @@ import { Link } from "react-router-dom";
 
 import useReports from "../../hooks/useReports";
 import useNotifications from "../../hooks/useNotifications";
+import useAuth from "../../hooks/useAuth";
 
 const Dashboard = () => {
+  // =========================
+  // CURRENT USER
+  // =========================
+
+  const { user } = useAuth();
+
+  // =========================
+  // REPORTS
+  // =========================
+
   const {
     reports,
     loading,
@@ -23,7 +34,15 @@ const Dashboard = () => {
     criticalReports,
   } = useReports();
 
+  // =========================
+  // NOTIFICATIONS
+  // =========================
+
   const { unreadCount } = useNotifications();
+
+  // =========================
+  // RECENT REPORTS
+  // =========================
 
   const recentReports = reports.slice(0, 4);
 
@@ -31,7 +50,10 @@ const Dashboard = () => {
     <div className="min-h-screen bg-[#f6f8f7] px-4 py-6 md:px-8">
       <div className="mx-auto max-w-7xl">
 
-        {/* Header */}
+        {/* =========================
+            HEADER
+        ========================= */}
+
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="mb-1 text-sm font-medium text-slate-500">
@@ -39,7 +61,7 @@ const Dashboard = () => {
             </p>
 
             <h1 className="text-2xl font-bold tracking-tight text-[#10231d] md:text-3xl">
-              Good morning, Anmol
+              Good morning, {user?.name || "User"}
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
@@ -49,6 +71,7 @@ const Dashboard = () => {
           </div>
 
           {/* Report Issue */}
+
           <Link
             to="/report"
             className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#143c2e] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0f3025]"
@@ -58,8 +81,12 @@ const Dashboard = () => {
           </Link>
         </div>
 
-        {/* Stats */}
+        {/* =========================
+            STATS
+        ========================= */}
+
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
           <StatCard
             title="Total reports"
             value={totalReports}
@@ -87,15 +114,23 @@ const Dashboard = () => {
             icon={<TriangleAlert size={19} />}
             description="Require attention"
           />
+
         </div>
 
-        {/* Main grid */}
+        {/* =========================
+            MAIN GRID
+        ========================= */}
+
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
 
-          {/* Recent reports */}
+          {/* =========================
+              RECENT REPORTS
+          ========================= */}
+
           <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-5">
+
               <div>
                 <h2 className="font-semibold text-[#10231d]">
                   Recent reports
@@ -113,12 +148,16 @@ const Dashboard = () => {
                 View all
                 <ArrowRight size={15} />
               </Link>
+
             </div>
 
             <div className="divide-y divide-slate-100">
 
+              {/* Loading */}
+
               {loading ? (
                 <div className="space-y-4 p-5">
+
                   {[1, 2, 3].map((item) => (
                     <div
                       key={item}
@@ -127,14 +166,23 @@ const Dashboard = () => {
                       <div className="h-16 w-16 animate-pulse rounded-xl bg-slate-100" />
 
                       <div className="flex-1 space-y-2">
+
                         <div className="h-4 w-2/3 animate-pulse rounded bg-slate-100" />
+
                         <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+
                       </div>
                     </div>
                   ))}
+
                 </div>
+
               ) : recentReports.length === 0 ? (
+
+                /* No Reports */
+
                 <div className="px-5 py-14 text-center">
+
                   <FileText
                     className="mx-auto text-slate-300"
                     size={38}
@@ -148,7 +196,6 @@ const Dashboard = () => {
                     Your submitted civic issues will appear here.
                   </p>
 
-                  {/* Create first report */}
                   <Link
                     to="/report"
                     className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#143c2e] px-4 py-2.5 text-sm font-semibold text-white"
@@ -156,35 +203,56 @@ const Dashboard = () => {
                     <Plus size={16} />
                     Create first report
                   </Link>
+
                 </div>
+
               ) : (
+
+                /* Reports */
+
                 recentReports.map((report) => (
+
                   <Link
                     key={report.id}
                     to={`/reports/${report.id}`}
                     className="group flex gap-4 px-5 py-5 transition hover:bg-slate-50"
                   >
+
+                    {/* Image */}
+
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+
                       {report.imageUrl ? (
+
                         <img
                           src={report.imageUrl}
                           alt={report.title}
                           className="h-full w-full object-cover transition group-hover:scale-105"
                         />
+
                       ) : (
+
                         <div className="flex h-full items-center justify-center">
+
                           <FileText
                             size={20}
                             className="text-slate-400"
                           />
+
                         </div>
+
                       )}
+
                     </div>
+
+                    {/* Report information */}
 
                     <div className="min-w-0 flex-1">
 
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+
                         <div>
+
                           <h3 className="truncate font-semibold text-slate-800 group-hover:text-[#21634d]">
                             {report.title}
                           </h3>
@@ -192,43 +260,63 @@ const Dashboard = () => {
                           <p className="mt-1 text-xs text-slate-500">
                             {report.civicIssueId || report.id}
                           </p>
+
                         </div>
 
                         <StatusBadge
                           status={report.status}
                         />
+
                       </div>
 
                       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
+
                         <span>
                           {report.category}
                         </span>
 
                         <span className="flex items-center gap-1">
+
                           <MapPin size={13} />
+
                           {report.location?.city ||
                             "Location available"}
+
                         </span>
+
                       </div>
+
                     </div>
 
                     <ArrowRight
                       size={17}
                       className="mt-1 hidden text-slate-300 transition group-hover:translate-x-1 group-hover:text-[#21634d] sm:block"
                     />
+
                   </Link>
+
                 ))
+
               )}
+
             </div>
+
           </section>
 
-          {/* Right column */}
+          {/* =========================
+              RIGHT COLUMN
+          ========================= */}
+
           <aside className="space-y-6">
 
-            {/* Accessibility card */}
+            {/* Accessibility */}
+
             <div className="rounded-2xl border border-[#d8e7e0] bg-[#edf7f2] p-5">
+
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#21634d] shadow-sm">
+
                 <ShieldCheck size={20} />
+
               </div>
 
               <h3 className="mt-4 font-semibold text-[#143c2e]">
@@ -241,7 +329,6 @@ const Dashboard = () => {
                 make public spaces easier to navigate.
               </p>
 
-              {/* Report a barrier */}
               <Link
                 to="/report"
                 className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#21634d]"
@@ -249,11 +336,15 @@ const Dashboard = () => {
                 Report a barrier
                 <ArrowRight size={15} />
               </Link>
+
             </div>
 
             {/* Notifications */}
+
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
               <div className="flex items-center justify-between">
+
                 <h3 className="font-semibold text-slate-800">
                   Notifications
                 </h3>
@@ -263,6 +354,7 @@ const Dashboard = () => {
                     {unreadCount} new
                   </span>
                 )}
+
               </div>
 
               <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -277,14 +369,22 @@ const Dashboard = () => {
                 Open notifications
                 <ArrowRight size={15} />
               </Link>
+
             </div>
 
           </aside>
+
         </div>
+
       </div>
     </div>
   );
 };
+
+
+/* =========================
+   STAT CARD
+========================= */
 
 const StatCard = ({
   title,
@@ -297,9 +397,12 @@ const StatCard = ({
   icon: React.ReactNode;
   description: string;
 }) => {
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+
       <div className="flex items-center justify-between">
+
         <span className="text-sm font-medium text-slate-500">
           {title}
         </span>
@@ -307,9 +410,11 @@ const StatCard = ({
         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 text-[#21634d]">
           {icon}
         </span>
+
       </div>
 
       <div className="mt-5">
+
         <p className="text-3xl font-bold tracking-tight text-[#10231d]">
           {value}
         </p>
@@ -317,31 +422,47 @@ const StatCard = ({
         <p className="mt-1 text-xs text-slate-500">
           {description}
         </p>
+
       </div>
+
     </div>
   );
 };
+
+
+/* =========================
+   STATUS BADGE
+========================= */
 
 const StatusBadge = ({
   status,
 }: {
   status: string;
 }) => {
+
   const styles: Record<string, string> = {
+
     REPORTED:
       "bg-slate-100 text-slate-700",
+
     "AI VERIFIED":
       "bg-blue-50 text-blue-700",
+
     ASSIGNED:
       "bg-purple-50 text-purple-700",
+
     "IN PROGRESS":
       "bg-amber-50 text-amber-700",
+
     RESOLVED:
       "bg-emerald-50 text-emerald-700",
+
     CLOSED:
       "bg-green-50 text-green-700",
+
     REOPENED:
       "bg-red-50 text-red-700",
+
   };
 
   return (
@@ -355,5 +476,6 @@ const StatusBadge = ({
     </span>
   );
 };
+
 
 export default Dashboard;
