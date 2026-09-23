@@ -18,79 +18,133 @@ This repository contains:
 CITIZEN
    │
    ▼
-React Frontend
+Upload Image
    │
-   Image + GPS Data
+   ▼
+Capture / Enter GPS
+   │
+   ▼
+Submit Report
    │
    ▼
 FastAPI Backend
    │
-   ┌─────────────┼──────────────┐
-   ▼             ▼              ▼
-S3             AI Layer      PostgreSQL
-   │             │
-   └──────┬──────┴───────┬───────┐
-          ▼               ▼       ▼
-   AWS Bedrock      Optional YOLO   Issue Detection
-                               │
-         ┌─────────────────────┼─────────────────────┐
-         ▼                     ▼                     ▼
-    Severity             Category             Duplicate Engine
-         │                     │                     │
-         └─────────┬───────────┴────────────┬──────────┘
-                   ▼                         ▼
-            Department Routing         Complaint Generator
-                   │                         │
-                   └──────────────┬──────────┘
-                                  ▼
-                          Civic Issue Created
-                                  │
-                                  ▼
-                       Authority Dashboard
-                                  │
-                                  ▼
-                               Assigned
-                                  │
-                                  ▼
-                            In Progress
-                                  │
-                                  ▼
-                               Resolved
-                                  │
-                                  ▼
-                    Before/After Evidence
-                                  │
-                                  ▼
-                           AI Verification
-                                  │
-                                  ▼
-                                 CLOSED
+   ├──────────────► Amazon S3
+   │                    │
+   │                    └── Store Image
+   │
+   └──────────────► Amazon Bedrock
+                        │
+                        ▼
+                   AI Analysis
+                        │
+            ┌───────────┼────────────┐
+            ▼           ▼            ▼
+        Category     Severity    Accessibility
+        Detection    Analysis       Impact
+            │           │            │
+            └───────────┼────────────┘
+                        ▼
+                 Duplicate Check
+                        │
+                        ▼
+                Department Routing
+                        │
+                        ▼
+                Complaint Generation
+                        │
+                        ▼
+                  Issue Created
+                        │
+                        ▼
+                Authority Dashboard
+                        │
+                        ▼
+                    Assigned
+                        │
+                        ▼
+                  In Progress
+                        │
+                        ▼
+                    Resolved
+                        │
+                        ▼
+               Upload After Image
+                        │
+                        ▼
+             AI-Assisted Verification
+                        │
+                        ▼
+                     CLOSED
 ```
 
 ### Cloud architecture
 
 ```text
-AWS CLOUD
-   │
-   ┌───────────────┼────────────────┐
-   │               │                │
-   ▼               ▼                ▼
-S3 Bucket     Amazon Bedrock    RDS PostgreSQL
-   │               │                │
-   │               ▼                │
-   │          AI Analysis           │
-   │                               │
-   └───────────────┼────────────────┘
-                   ▼
-          FastAPI Backend
-                   │
-         ┌─────────┴─────────┐
-         ▼                   ▼
-   Authority API        Citizen API
-         │                   │
-         └─────────┬─────────┘
-                   ▼
-             React Frontend
+                         ACCESSPATH AI
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │ React Frontend   │
+                    │ TypeScript + UI  │
+                    └────────┬─────────┘
+                             │
+                      Image + GPS Data
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ FastAPI Backend  │
+                    │ REST APIs        │
+                    └────────┬─────────┘
+                             │
+             ┌───────────────┼────────────────┐
+             │               │                │
+             ▼               ▼                ▼
+       ┌──────────┐   ┌──────────────┐  ┌──────────────┐
+       │ S3       │   │ AWS Bedrock  │  │ PostgreSQL   │
+       │ Images   │   │ AI Analysis  │  │ Application  │
+       └──────────┘   └──────┬───────┘  │ Data         │
+                              │          └──────────────┘
+                              ▼
+                       ┌──────────────┐
+                       │ AI Processing│
+                       └──────┬───────┘
+                              │
+             ┌────────────────┼─────────────────┐
+             ▼                ▼                 ▼
+        Classification    Severity         Duplicate
+        & Detection       Engine            Detection
+             │                │                 │
+             └────────────────┼─────────────────┘
+                              ▼
+                     Department Routing
+                              │
+                              ▼
+                    Complaint Generator
+                              │
+                              ▼
+                       Civic Issue
+                              │
+                              ▼
+                    Authority Dashboard
+                              │
+                              ▼
+                          Assigned
+                              │
+                              ▼
+                        In Progress
+                              │
+                              ▼
+                          Resolved
+                              │
+                              ▼
+                    Before/After Evidence
+                              │
+                              ▼
+                    AI-Assisted Verification
+                              │
+                              ▼
+                           CLOSED
 ```
 
 ## Tech stack
