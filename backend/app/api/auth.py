@@ -15,7 +15,6 @@ from app.schemas.auth import (
     UserResponse,
 )
 
-
 router = APIRouter()
 
 
@@ -35,7 +34,6 @@ def register(
     )
 
     if existing_user:
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
@@ -44,10 +42,11 @@ def register(
     user = User(
         name=data.name,
         email=data.email,
-        password_hash=hash_password(
-            data.password
-        ),
-        role="CITIZEN",
+        password_hash=hash_password(data.password),
+
+        # Use selected role
+        role=data.role.value if hasattr(data.role, "value") else data.role,
+
         phone=data.phone,
     )
 
@@ -74,7 +73,6 @@ def login(
     )
 
     if not user:
-
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password",
@@ -84,7 +82,6 @@ def login(
         data.password,
         user.password_hash,
     ):
-
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password",
